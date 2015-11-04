@@ -79,7 +79,9 @@ def query_ticket(searchterm):
     issue = preprocess(conn.issue('TD-{0}'.format(searchterm)))
     lines = []
     for key in DISPLAY_KEYS:
-        lines.append('{0}: {1}'.format(key, issue.get(key, '')[0:500]))
+        issue_data = '{0}: {1}'.format(key, issue.get(key, ''))
+        new_line = ' '.join(issue_data.split('\n\r')[0:3])
+        lines.append(new_line)
     lines.append('url: https://trifacta.atlassian.net/browse/TD-{0}'.format(searchterm))
     full_msg = '\n'.join(lines)
     return full_msg
