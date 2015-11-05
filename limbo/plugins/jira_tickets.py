@@ -1,23 +1,15 @@
 """Adding jira ticket metadata to a user inputted ticket"""
 
-try:
-    from urllib import quote, unquote
-except ImportError:
-    from urllib.request import quote, unquote
 from dateutil import parser
 from jira import JIRA
-import json
 import os
 import re
-import requests
-import sys
 
 JIRA_USER = os.environ['JIRA_USER']
 JIRA_AUTH = os.environ['JIRA_AUTH']
 OPTIONS = {
     'server': 'https://trifacta.atlassian.net'
 }
-conn = JIRA(OPTIONS, basic_auth=(JIRA_USER, JIRA_AUTH))
 DISPLAY_KEYS = ['summary', 'description', 'status', 'priority',
                 'assignee', 'reporter', 'created_at', 'updated']
 
@@ -74,25 +66,54 @@ def preprocess(issue):
     }
 
 
-def query_ticket(searchterm):
+def short_preprocess(issue):
+    """Takes a single issue pulled from a JIRA query and
+    extracts shortend version for more compact posting by rosencrantz
+    :returns: (*dict*)
+    """
+    raw = issue.raw['fields']
+    return {
+        'summary': raw['summary'],
+        'assignee': raw['assignee']['displayName'],
+        'status': raw['status']['name'],
+    }
 
-    issue = preprocess(conn.issue('TD-{0}'.format(searchterm)))
-    lines = []
+
+def run_short_pull(ticket, conn):
+    issue = short_preprocess(conn.issue('{0}'.format(ticket)))
+    issue['url'] = 'https://trifacta.atlassian.net/browse/{0}'.format(ticket)
+    issue['ticket'] = ticket
+    return'{ticket}: {summary}, {status}, {assignee}, {url}'.format(**issue)
+
+
+def run_long_pull(ticket, conn):
+    issue = preprocess(conn.issue('{0}'.format(ticket)))
+    lines = [ticket]
     for key in DISPLAY_KEYS:
         issue_data = '{0}: {1}'.format(key, issue.get(key, ''))
         new_line = ' '.join(issue_data.split('\n\r')[0:3])
         lines.append(new_line)
-    lines.append('url: https://trifacta.atlassian.net/browse/TD-{0}'.format(searchterm))
-    full_msg = '\n'.join(lines)
-    return full_msg
+    lines.append('url: https://trifacta.atlassian.net/browse/{0}'.format(ticket))
+    return '\n'.join(lines)
+
+
+def query_ticket(searchterm):
+
+    context, ticket = searchterm
+    conn = JIRA(OPTIONS, basic_auth=(JIRA_USER, JIRA_AUTH))
+    if context.replace(' ', '') != 'rs':
+        line = run_short_pull(ticket, conn)
+    else:
+        line = run_long_pull(ticket, conn)
+
+    return line
 
 
 def on_message(msg, server):
     text = msg.get("text", "")
-    match = re.findall(r"!TD-([0-9]{5})", text)
+    match = re.findall(r"(\w+\s+|\b)([A-Z]+-\d+)", text)
     if not match:
         return
 
     searchterm = match[0]
-    return query_ticket(searchterm.encode("utf8"))
-    #return searchterm
+    return query_ticket(map(lambda term: term.encode('utf8'), searchterm))
