@@ -81,6 +81,8 @@ def short_preprocess(issue):
 
 def run_short_pull(ticket, conn):
     issue = short_preprocess(conn.issue('{0}'.format(ticket)))
+    for key in issue.keys():
+        issue[key] = issue[key].encode('ascii', 'ignore')
     issue['url'] = 'https://trifacta.atlassian.net/browse/{0}'.format(ticket)
     issue['ticket'] = ticket
     return'{ticket}: {summary}, {status}, {assignee}, {url}'.format(**issue)
@@ -90,7 +92,7 @@ def run_long_pull(ticket, conn):
     issue = preprocess(conn.issue('{0}'.format(ticket)))
     lines = [ticket]
     for key in DISPLAY_KEYS:
-        issue_data = '{0}: {1}'.format(key, issue.get(key, ''))
+        issue_data = '{0}: {1}'.format(key, issue.get(key, '').encode('ascii', 'ignore'))
         new_line = ' '.join(issue_data.split('\n\r')[0:3])
         lines.append(new_line)
     lines.append('url: https://trifacta.atlassian.net/browse/{0}'.format(ticket))
