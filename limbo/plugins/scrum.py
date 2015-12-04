@@ -44,7 +44,7 @@ def get_recently_resolved_query(team):
         lag = 1
     return '''issuetype in (Bug, "Engineering Story", Story) AND
         status in (Resolved, Closed) and updated >= -{0}d AND
-        assignee in membersOf({1}) ORDER BY assignee,
+        assignee in membersOf("{1}") ORDER BY assignee,
         updated DESC'''.format(lag, team)
 
 
@@ -54,7 +54,7 @@ def get_in_progress_query(team):
     return '''
         issuetype in (Bug, "Engineering Story", Story) AND
         status = "In Progress" AND resolution = Unresolved AND
-        assignee in membersOf({0}) ORDER BY assignee, updated DESC
+        assignee in membersOf("{0}") ORDER BY assignee, updated DESC
         '''.format(team)
 
 
@@ -84,4 +84,5 @@ def on_message(msg, server):
         return
 
     searchterm = match[0][1]
+    print searchterm
     return run_scrum_query(searchterm)
