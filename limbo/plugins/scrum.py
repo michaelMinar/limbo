@@ -42,7 +42,7 @@ def get_recently_resolved_query(team):
         lag = 3
     else:
         lag = 1
-    return '''issuetype in (Bug, "Engineering Story", Story) AND
+    return '''issuetype in (Bug, "Engineering Story", Story, Sub-task) AND
         status in (Resolved, Closed) and updated >= -{0}d AND
         assignee in membersOf("{1}") ORDER BY assignee,
         updated DESC'''.format(lag, team)
@@ -52,7 +52,7 @@ def get_recently_resolved_query(team):
 def get_in_progress_query(team):
     """Take in a team name and return the jql query for retrieving issues"""
     return '''
-        issuetype in (Bug, "Engineering Story", Story) AND
+        issuetype in (Bug, "Engineering Story", Story, Sub-task) AND
         status = "In Progress" AND resolution = Unresolved AND
         assignee in membersOf("{0}") ORDER BY assignee, updated DESC
         '''.format(team)
