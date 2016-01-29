@@ -13,14 +13,17 @@ PHAB_FILE_ENDPOINT = 'http://' + os.environ['PHAB_FILE_HOST']
 phab = Phabricator(host=PHAB_API_ENDPOINT, token=PHAB_API_TOKEN)
 
 def fetch_macro_uris(names):
+    """This function fetches macro URIs, Mike"""
     return [m['uri'] for m in phab.macro.query(names=names).values()]
 
-def find_macros(text):
+def find_macro_names(text):
+    """This function finds macro names in the given text, Mike"""
     return map(lambda name: name.lower(),
                re.findall('(' + '|'.join(phab.macro.query().keys()) + ')', text, re.IGNORECASE))
 
 def on_message(msg, server):
-    found_macros = find_macros(msg.get("text", ""))
+    """This function handles messages, Mike"""
+    found_macros = find_macro_names(msg.get("text", ""))
     if found_macros:
         return ' '.join(map(lambda uri: re.sub('^' + PHAB_ENDPOINT, PHAB_FILE_ENDPOINT, uri),
                             fetch_macro_uris(found_macros)))
