@@ -12,16 +12,8 @@ PHAB_FILE_ENDPOINT = 'http://' + os.environ['PHAB_FILE_HOST']
 
 phab = Phabricator(host=PHAB_API_ENDPOINT, token=PHAB_API_TOKEN)
 
-def fetch_macro_uris(names):
-    """This function fetches macro URIs
-
-    :param list names: phab macro names
-    :returns: (*list*) -- uris for each name
-    """
-    return [m['uri'] for m in phab.macro.query(names=names).values()]
-
 def find_macro_names(text):
-    """This function finds macro names in the given text
+    """Message text comes in, macro names get fetched, and the ones that match go out as a list
 
     :param str text:
     :returns: (*list*) -- list of phab macro names pulled from input string
@@ -29,8 +21,20 @@ def find_macro_names(text):
     return map(lambda name: name.lower(),
                re.findall('(' + '|'.join(phab.macro.query().keys()) + ')', text, re.IGNORECASE))
 
+def fetch_macro_uris(names):
+    """"Macro names come in, get fetched from phab, and a list of their URI strings go out
+
+    :param list names: phab macro names
+    :returns: (*list*) -- uris for each name
+    """
+    return [m['uri'] for m in phab.macro.query(names=names).values()]
+
 def on_message(msg, server):
-    """This function handles messages"""
+    """Macro URIs from message get rewritten for the file proxy and returned separated by spaces
+
+    :param dict msg: slack message data, with body of message as value for the text key
+    :returns: str -- space separated uris pointing at phabricator file proxy service
+    """
     found_macros = find_macro_names(msg.get("text", ""))
     if found_macros:
         return ' '.join(map(lambda uri: re.sub('^' + PHAB_ENDPOINT, PHAB_FILE_ENDPOINT, uri),
