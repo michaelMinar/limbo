@@ -1,4 +1,11 @@
-"""Translate phabricator macro names into unfurl-able URLs"""
+"""Translate phabricator macro names into unfurl-able URLs
+
+Wants these environment variables:
+    PHAB_HOST -- the hostname where your phabricator lives
+    PHAB_API_TOKEN -- a valid api token for some phabiricator bot account
+    PHAB_FILE_HOST -- hostname for instance of https://github.com/emarschner/phabricator-file-proxy
+                      configured to point at PHAB_HOST
+"""
 
 from phabricator import Phabricator
 import os
