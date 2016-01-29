@@ -25,8 +25,12 @@ def find_macro_names(text):
     :param str text:
     :returns: (*list*) -- list of phab macro names pulled from input string
     """
-    return map(lambda name: name.lower(),
-               re.findall('(' + '|'.join(phab.macro.query().keys()) + ')', text, re.IGNORECASE))
+    wb = r'(\w+\s+|\b|\W|^)'  # "Word Boundary"
+    names = r'(' + r'|'.join(phab.macro.query().keys()) + r')'
+    return map(lambda name: (name[2] or name[4]).lower(),
+               re.findall(r'(' + wb + r'!' + names + wb + r'|^[\s!]*' + names + r'\s*$)',
+                          text, re.IGNORECASE | re.MULTILINE))
+
 
 def fetch_macro_uris(names):
     """"Macro names come in, get fetched from phab, and a list of their URI strings go out
@@ -37,12 +41,12 @@ def fetch_macro_uris(names):
     return [m['uri'] for m in phab.macro.query(names=names).values()]
 
 def on_message(msg, server):
-    """Macro URIs from message get rewritten for the file proxy and returned separated by spaces
+    """Macro URIs from message get rewritten for the file proxy and returned separated by newlines
 
     :param dict msg: slack message data, with body of message as value for the text key
-    :returns: str -- space separated uris pointing at phabricator file proxy service
+    :returns: str -- newline separated uris pointing at phabricator file proxy service
     """
     found_macros = find_macro_names(msg.get("text", ""))
     if found_macros:
-        return ' '.join(map(lambda uri: re.sub('^' + PHAB_ENDPOINT, PHAB_FILE_ENDPOINT, uri),
-                            fetch_macro_uris(found_macros)))
+        return '\n'.join(map(lambda uri: re.sub('^' + PHAB_ENDPOINT, PHAB_FILE_ENDPOINT, uri),
+                             fetch_macro_uris(found_macros)))
