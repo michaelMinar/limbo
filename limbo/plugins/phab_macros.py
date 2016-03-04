@@ -28,7 +28,7 @@ def find_macro_names(text):
     wb = r'(\w+\s+|\b|\W|^)'  # "Word Boundary"
     names = r'(' + r'|'.join(phab.macro.query().keys()) + r')'
     return map(lambda name: (name[2] or name[4]).lower(),
-               re.findall(r'(' + wb + r'!' + names + wb + r'|^[\s!]*' + names + r'\s*$)',
+               re.findall(r'(' + wb + names + wb + r'|^[\s]*' + names + r'\s*$)',
                           text, re.IGNORECASE | re.MULTILINE))
 
 
