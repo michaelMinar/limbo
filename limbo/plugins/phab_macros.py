@@ -77,6 +77,5 @@ def on_message(msg, server):
     """
     found_macros = find_macro_names(msg.get("text", ""))
     if found_macros:
-        return '\n'.join(found_macros)
-        # return '\n'.join(map(lambda uri: re.sub('^' + PHAB_ENDPOINT, PHAB_FILE_ENDPOINT, uri),
-        #                      fetch_macro_uris(found_macros)))
+        return '\n'.join(map(lambda uri: re.sub('^' + PHAB_ENDPOINT, PHAB_FILE_ENDPOINT, uri),
+                             fetch_macro_uris(found_macros)))
