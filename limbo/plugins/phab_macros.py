@@ -20,7 +20,15 @@ PHAB_FILE_ENDPOINT = 'http://' + os.environ['PHAB_FILE_HOST']
 phab = Phabricator(host=PHAB_API_ENDPOINT, token=PHAB_API_TOKEN)
 
 CUSTOM_MAP = {
-    'nerd rage': 'nerdrage'
+    'nerd rage': 'nerdrage',
+    'because we are smart': 'because-we-are-smart',
+    'deal breaker': 'dealbreaker',
+    '#champion': 'iwillbeyourchampion',
+    'killing it': 'killing-it',
+    'what is happening': 'spaceballs-tape',
+    'treat yo self': 'treatyoself',
+    'treat yourself': 'treatyoself',
+    "you're a wizard": 'youre-a-wizard'
 }
 
 def find_macro_names(text):
