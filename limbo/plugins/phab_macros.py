@@ -21,7 +21,7 @@ phab = Phabricator(host=PHAB_API_ENDPOINT, token=PHAB_API_TOKEN)
 
 CUSTOM_MAP = {
     'nerd rage': 'nerdrage',
-    'because we are smart': 'because-we-are-smart',
+    "because we're smart": 'because-we-are-smart',
     'deal breaker': 'dealbreaker',
     '#champion': 'iwillbeyourchampion',
     'killing it': 'killing-it',
