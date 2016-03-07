@@ -23,6 +23,7 @@ CUSTOM_MAP = {
     'nerd rage': 'nerdrage',
     "because we're smart": 'because-we-are-smart',
     'deal breaker': 'dealbreaker',
+    '#shutitdown': 'dealbreaker',
     '#champion': 'iwillbeyourchampion',
     'killing it': 'killing-it',
     'what is happening': 'spaceballs-tape',
