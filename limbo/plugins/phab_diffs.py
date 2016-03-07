@@ -20,7 +20,7 @@ PHAB_FILE_ENDPOINT = 'http://' + os.environ['PHAB_FILE_HOST']
 
 phab = Phabricator(host=PHAB_API_ENDPOINT, token=PHAB_API_TOKEN)
 
-TEMPLATE_STR = 'Differential Revision'
+TEMPLATE_STR = 'Test Plan:'
 
 
 def extract_diff_msg(commit):
@@ -76,6 +76,10 @@ def format_line(record):
     :param dict record:
     """
     record['message'] = record['message'].replace('\n\n', '\n')
+    uri = 'https://phab.trifacta.com/{0}'.format(record['diff_tag'])
+    if uri not in record['message']:
+        record['message'] = record['message'] + '\n' + 'Revision Detail: {0}'.format(uri)
+
     return '{diff_tag}: {author} \n {message}'.format(**record)
 
 
