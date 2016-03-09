@@ -45,9 +45,10 @@ def find_macro_names(text):
     names = r'(' + r'|'.join(complete_keys) + r')'
 
     return map(lambda name: (name[2] or name[4]).lower(),
-               re.findall(r'(' + wb + names + wb + r'|^[\s]*' + names + r'\s*$)',
+               re.findall(r'(' + wb + names + wb + r'\s*$)',
                           text, re.IGNORECASE | re.MULTILINE))
 
+# r'|^[\s]*' + names +
 
 def fetch_macro_uris(names):
     """"Macro names come in, get fetched from phab, and a list of their URI strings go out

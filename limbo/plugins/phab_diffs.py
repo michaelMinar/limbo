@@ -75,12 +75,8 @@ def format_line(record):
 
     :param dict record:
     """
-    record['message'] = record['message'].replace('\n\n', '\n')
-    uri = 'https://phab.trifacta.com/{0}'.format(record['diff_tag'])
-    if uri not in record['message']:
-        record['message'] = record['message'] + '\n' + 'Revision Detail: {0}'.format(uri)
-
-    return '{diff_tag}: {author} \n {message}'.format(**record)
+    record['uri'] = 'https://phab.trifacta.com/{0}'.format(record['diff_tag'])
+    return '{diff_tag}: {author} \n {summary} \n {uri}'.format(**record)
 
 
 def on_message(msg, server):
