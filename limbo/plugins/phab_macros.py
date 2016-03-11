@@ -29,7 +29,8 @@ CUSTOM_MAP = {
     'what is happening': 'spaceballs-tape',
     'treat yo self': 'treatyoself',
     'treat yourself': 'treatyoself',
-    "you're a wizard": 'youre-a-wizard'
+    "you're a wizard": 'youre-a-wizard',
+    'bey': 'beyonce'
 }
 
 def find_macro_names(text):
@@ -45,7 +46,7 @@ def find_macro_names(text):
     names = r'(' + r'|'.join(complete_keys) + r')'
 
     return map(lambda name: (name[2] or name[4]).lower(),
-               re.findall(r'(' + wb + names + wb + r'\s*$)',
+               re.findall(r'(' + wb + names + wb + r'\s*)',
                           text, re.IGNORECASE | re.MULTILINE))
 
 # r'|^[\s]*' + names +
