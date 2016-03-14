@@ -39,7 +39,7 @@ def find_macro_names(text):
     :param str text:
     :returns: (*list*) -- list of phab macro names pulled from input string
     """
-    wb = r'(\w+\s+|\b|\W|^)'  # "Word Boundary"
+    wb = r'(\b|^)'  # "Word Boundary"
 
     macro_keys = phab.macro.query().keys()
     complete_keys = macro_keys + CUSTOM_MAP.keys()
