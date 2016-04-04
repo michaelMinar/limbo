@@ -76,7 +76,7 @@ def format_line(record):
     :param dict record:
     """
     record['uri'] = 'https://phab.trifacta.com/{0}'.format(record['diff_tag'])
-    return '{diff_tag}: {author} \n {summary} \n {uri}'.format(**record)
+    return '<{uri}|{diff_tag}>: {author} \n > {summary}'.format(**record)
 
 
 def on_message(msg, server):
