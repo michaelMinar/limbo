@@ -22,6 +22,18 @@ phab = Phabricator(host=PHAB_API_ENDPOINT, token=PHAB_API_TOKEN)
 
 TEMPLATE_STR = 'Test Plan:'
 
+REVIEWERS = {
+    'michaelMinar': 'mminar',
+    'joe.m': 'joe.mckenney',
+    'stephan': 'steps',
+    'jaypranavamurthi': 'jay',
+    'adam': 'adamsilberstein',
+    'nserrino': 'natalie',
+    'sraza': 'safder',
+    'sesh': 'seshadri',
+    'vikram': 'vikramshrowty'
+}
+
 
 def extract_diff_msg(commit):
     """Takes a phabricator commit message and conditionally extracts messages
@@ -50,7 +62,17 @@ def extract_all_properties(response):
     return filter(lambda y: len(y) > 0 and type(y) == dict, all_props)
 
 
-def phab_diff_query(diff_tag):
+def extract_reviewers(msg):
+    """Take the plain diff message, parse it and extract the reviewers
+
+    :param str msg:
+    :return: (*list*)
+    """
+    parsd = re.findall(r"(Reviewers:)(.+)(\n)", msg, re.MULTILINE)[0][1]
+    names = parsd.replace(' ', '').split(',')
+    return map(lambda name: '@' + REVIEWERS.get(name, name), names)
+
+def phab_diff_query(diff_tag, summon):
     """Takes in a differential tag DXXXX and returns meta data
 
     :param str diff_tag:
@@ -66,33 +88,35 @@ def phab_diff_query(diff_tag):
         if len(diff_rev) > 0:
             record = diff_rev[0]
             record['diff_tag'] = diff_tag
-            return format_line(record)
+            return format_line(record, summon)
 
 
-def format_line(record):
+def format_line(record, summon):
     """Take in the meta data dictionary associated with a differential revision
     and create a printable string
 
     :param dict record:
+    :param bool summon: whether or not to summon reviewers
     """
     record['uri'] = 'https://phab.trifacta.com/{0}'.format(record['diff_tag'])
-    return '{diff_tag}: {author} \n {summary} \n {uri}'.format(**record)
+    if not summon:
+        return '{diff_tag}: {author} \n {summary} \n {uri}'.format(**record)
+    else:
+        record['summon_stmt'] = ', '.join(extract_reviewers(record['message']))
+        return '*ping for review:* \n {diff_tag}: {author} \n {summary} \n {uri} \n {summon_stmt}'.format(**record)
 
 
 def on_message(msg, server):
     """Listen for patterns like D{number} bounded by word boundaries
     """
     text = msg.get("text", "")
-    match = re.findall(r"(\w+\s+|\b)(D+\d+)", text)
-    if not match:
+    matches = re.findall(r"(\b)(ping |qd )?(D+\d+)", text)
+    if not matches:
         return
 
-    resps = map(lambda matched: phab_diff_query(matched[1].encode('utf8')), match)
+    resps = map(
+        lambda matched: phab_diff_query(matched[2].encode('utf8'), matched[1].encode('utf8')),
+        matches)
     filtered_resps = filter(lambda msg: msg is not None, resps)
     if len(filtered_resps) > 0:
         return '\n'.join(filtered_resps)
-
-    # found_macros = find_macro_names(msg.get("text", ""))
-    # if found_macros:
-    #     return '\n'.join(map(lambda uri: re.sub('^' + PHAB_ENDPOINT, PHAB_FILE_ENDPOINT, uri),
-    #                          fetch_macro_uris(found_macros)))
